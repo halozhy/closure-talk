@@ -8,4 +8,5 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.eol": "\n",
+  "liveServer.settings.port": 5501,
 }
