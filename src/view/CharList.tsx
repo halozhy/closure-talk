@@ -8,6 +8,7 @@ import { useAppContext } from "../model/AppContext";
 import Character from "../model/Character";
 import ChatChar from "../model/ChatChar";
 import DataSourceState from "../model/DataSourceState";
+import ChatItem from "../model/ChatItem";
 
 function applySearch(chars: Character[], search: string, sources: DataSourceState[]): Character[] {
   const keys = search.split(",").map(s => s.trim().toLowerCase());
@@ -18,6 +19,10 @@ function applySearch(chars: Character[], search: string, sources: DataSourceStat
   );
 
   return result;
+}
+
+class ChatListViewProps {
+  setChat = (updated: ChatItem[]) => { };
 }
 
 export default function CharList() {
@@ -39,10 +44,14 @@ export default function CharList() {
   const makeAvatar = (ch: Character, img: string) => {
     return (
       <IconButton sx={{ padding: 0 }} key={img} onClick={() => {
+        // console.log('click!');
+
         const chatCh = new ChatChar(ch, img);
         const idx = ctx.activeChars.findIndex(c => c.get_id() === chatCh.get_id());
         if (idx < 0) {
           ctx.setActiveChars([...ctx.activeChars, chatCh]);
+          ctx.activeChars = [...ctx.activeChars, chatCh];
+          ctx.setChatToLS(ctx.chat); // 直接把变动写入local storage，代价是在ctx上面新增了这个方法
         }
       }}>
         <Avatar

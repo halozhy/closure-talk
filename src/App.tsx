@@ -100,6 +100,7 @@ function App() {
       setShowCharListOverlay: setShowCharListOverlay,
       chat: chat,
       setChat: setChat,
+      setChatToLS: () => {},
       isCapturing: isCapturing,
       setIsCapturing: setIsCapturing,
       appConfig: appConfig,

@@ -86,6 +86,8 @@ export default function ChatInputView(props: ChatInputViewProps) {
   };
 
   const addNormalChat = () => {
+    console.log(ctx.chat);
+
     const input = document.getElementById("chat-input") as HTMLInputElement;
     const content = input.value;
     if (content.length === 0) {
@@ -100,12 +102,121 @@ export default function ChatInputView(props: ChatInputViewProps) {
     addChat(createChatItem(currentChar, url, true));
   };
 
+
+  const setOnlyRemoveCallBack = function() {
+    setRemovingCustomChar(null);
+    console.log('only remove call back');
+    if (removingCustomChar != null){
+      changeCurCharAndDel(removingCustomChar.id);
+      // // 判断要不要更改curChar
+      // if (currentChar?.character.id === removingCustomChar.id) {
+      //   // 需要改
+      //   console.log('NEED change custom!');
+      //   // ctx.activeChars
+      //   for (let index = 0; index < ctx.activeChars.length; index++) {
+      //     const char = ctx.activeChars[index];
+      //     if (char?.character.id === removingCustomChar.id) {
+      //       if (index - 1 >= 0) {
+      //         setCurrentChar(ctx.activeChars[index - 1]);
+      //       }
+      //       else {
+      //         setCurrentChar(null);
+      //       }
+      //       break;
+      //     }
+      //   }
+
+      // }
+
+
+      // ctx.setActiveChars(ctx.activeChars.filter(c => (c.character.id !== removingCustomChar.id)));
+      // let c = ctx.activeChars.filter(c => c.character.id !== removingCustomChar.id);
+      // ctx.activeChars = c; // 作用到真值上面，这样才能随ctx被序列化
+      // // 作用到localstorage上面（序列化到ls上面）
+      // ctx.setChatToLS(ctx.chat);
+    }
+  };
+
   const deleteActiveChar = (ch: ChatChar) => {
+    console.log('触发del事件');
+
     if (ch.character.is_custom()) {
+      // 交给对话框来删除
       setRemovingCustomChar(ch.character as CustomCharacter);
+
+
+    }
+    else{
+      // 非自定义角色，直接删除
+      console.log('del 非自定义角色，直接删除');
+
+      ctx.setActiveChars(ctx.activeChars.filter(c => c.get_id() !== ch.get_id()));
+
+      const charToBeDelId = ch.get_id();
+
+      changeCurCharAndDel(charToBeDelId);
+
+
     }
 
-    ctx.setActiveChars(ctx.activeChars.filter(c => c.get_id() !== ch.get_id()));
+  };
+
+  const changeCurCharAndDel = (charToBeDelId: string) => {
+    // 判断要不要更改curChar
+    let currentCharId;
+    console.log(currentChar);
+
+    if(currentChar?.character instanceof CustomCharacter){
+      // console.log(currentChar.character.id, charToBeDelId);
+      currentCharId = currentChar.character.id;
+    }
+    else {
+      // console.log(currentChar?.get_id(), charToBeDelId);
+      currentCharId = currentChar?.get_id();
+    }
+
+    if (currentCharId === charToBeDelId) {
+      // 需要改
+      console.log('NEED change!');
+      // ctx.activeChars
+      for (let index = 0; index < ctx.activeChars.length; index++) {
+        const char = ctx.activeChars[index];
+        let charId;
+        if(char?.character instanceof CustomCharacter){
+          // console.log(currentChar.character.id, charToBeDelId);
+          charId = char.character.id;
+        }
+        else {
+          charId = char?.get_id();
+        }
+        if (charId === charToBeDelId) {
+          if (index - 1 >= 0) {
+            setCurrentChar(ctx.activeChars[index - 1]);
+          }
+          else {
+            setCurrentChar(null);
+          }
+          break;
+        }
+      }
+
+    }
+
+    let c: ChatChar[];
+    if(currentChar?.character instanceof CustomCharacter){
+      c = ctx.activeChars.filter(c => c.character.id !== charToBeDelId);
+    }
+    else {
+      c = ctx.activeChars.filter(c => c.get_id() !== charToBeDelId);
+    }
+
+    ctx.setActiveChars(c);
+    ctx.activeChars = c; // 作用到真值上面，这样才能随ctx被序列化
+    console.log(ctx.activeChars, c);
+
+    // 作用到localstorage上面（序列化到ls上面）
+    props.setChat(props.chat);
+    // ctx.setChatToLS(ctx.chat);
   };
 
   return (
@@ -192,7 +303,9 @@ export default function ChatInputView(props: ChatInputViewProps) {
         />
       </Box>
       <CustomCharDialog open={customCharOpen} setClose={() => { setCustomCharOpen(false); }} />
-      <RemoveCustomCharDialog char={removingCustomChar} setClose={() => { setRemovingCustomChar(null); }} />
+      <RemoveCustomCharDialog char={removingCustomChar} setClose={() =>{
+        setRemovingCustomChar(null);
+      }} setOnlyRemove={()=>setOnlyRemoveCallBack()}/>
     </Box>
   );
 }

@@ -28,6 +28,7 @@ export interface IAppContext {
   setShowCharListOverlay: Function;
   chat: ChatItem[];
   setChat: Function;
+  setChatToLS: Function;
   isCapturing: boolean;
   setIsCapturing: Function;
   appConfig: AppConfig;
@@ -53,6 +54,7 @@ const AppContext = createContext<IAppContext>({
   setShowCharListOverlay: () => { },
   chat: [],
   setChat: () => { },
+  setChatToLS: () => { },
   isCapturing: false,
   setIsCapturing: () => { },
   appConfig: new AppConfig(),
